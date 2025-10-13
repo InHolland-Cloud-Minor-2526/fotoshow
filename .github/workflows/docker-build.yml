@@ -1,0 +1,61 @@
+name: Build and package Docker image
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch: {}
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - name: Cache Maven local repository
+        uses: actions/cache@v4
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-m2-
+
+      - name: Build with Maven (skip tests)
+        run: mvn -B package -DskipTests
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Build Docker image (local tag)
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./Dockerfile
+          tags: quarkus/demo-jvm:latest
+          push: false
+
+      - name: Show image size
+        run: docker images --format "{{.Repository}}:{{.Tag}} {{.Size}}" | grep quarkus || true
+
+      - name: Save quarkus-app layout as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: quarkus-app
+          path: target/quarkus-app
+
+      - name: Save Docker image to tar
+        run: |
+          docker save quarkus/demo-jvm:latest -o quarkus-demo-jvm.tar
+
+      - name: Upload Docker image tar as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: quarkus-demo-jvm-image
+          path: quarkus-demo-jvm.tar
