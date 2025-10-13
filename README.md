@@ -1,3 +1,4 @@
+# NickS721 Contribution to opensource 😙
 # fotoshow
 
 This project uses Quarkus, the Supersonic Subatomic Java Framework.
