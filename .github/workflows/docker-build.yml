@@ -40,6 +40,8 @@ jobs:
           file: ./Dockerfile
           tags: quarkus/demo-jvm:latest
           push: false
+          # load the built image into the runner's Docker daemon so docker save can access it
+          load: true
 
       - name: Show image size
         run: docker images --format "{{.Repository}}:{{.Tag}} {{.Size}}" | grep quarkus || true
