@@ -11,7 +11,7 @@ permissions:
   id-token: write  # Needed for authentication if using OIDC
 
 env:
-  IMAGE_NAME: ghcr.io/${{ github.repository_owner }}/fotoshow
+  IMAGE_NAME: ghcr.io/coendv/fotoshow
   IMAGE_TAG: latest
 
 jobs:
